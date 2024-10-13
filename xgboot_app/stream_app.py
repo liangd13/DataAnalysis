@@ -2,9 +2,13 @@ import streamlit as st
 import pandas as pd
 import pickle
 import xgboost as xgb
+import os
 
 # 加载模型
-with open('xgboost_model.pkl', 'rb') as file:
+# 获取当前文件的目录
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, 'xgboost_model.pkl')
+with open(model_path, 'rb') as file:
     model = pickle.load(file)
 
 # Streamlit 应用界面
