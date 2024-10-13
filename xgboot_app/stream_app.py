@@ -52,14 +52,23 @@ st.title("XGBoost 模型预测")
 
 # 在侧边栏中输入特征
 st.sidebar.header("输入特征")  # 侧边栏的标题
-# 使用数字输入框接收花萼长度，设置最小值为 0.0
-sepal_length = st.sidebar.number_input("花萼长度 (cm)", min_value=0.0)
-# 使用数字输入框接收花萼宽度，设置最小值为 0.0
-sepal_width = st.sidebar.number_input("花萼宽度 (cm)", min_value=0.0)
-# 使用数字输入框接收花瓣长度，设置最小值为 0.0
-petal_length = st.sidebar.number_input("花瓣长度 (cm)", min_value=0.0)
-# 使用数字输入框接收花瓣宽度，设置最小值为 0.0
-petal_width = st.sidebar.number_input("花瓣宽度 (cm)", min_value=0.0)
+# # 使用数字输入框接收花萼长度，设置最小值为 0.0
+# sepal_length = st.sidebar.number_input("花萼长度 (cm)", min_value=0.0)
+# # 使用数字输入框接收花萼宽度，设置最小值为 0.0
+# sepal_width = st.sidebar.number_input("花萼宽度 (cm)", min_value=0.0)
+# # 使用数字输入框接收花瓣长度，设置最小值为 0.0
+# petal_length = st.sidebar.number_input("花瓣长度 (cm)", min_value=0.0)
+# # 使用数字输入框接收花瓣宽度，设置最小值为 0.0
+# petal_width = st.sidebar.number_input("花瓣宽度 (cm)", min_value=0.0)
+
+# 使用滑动条接收花萼长度，设置范围为 0.0 到 10.0，默认值为 5.0
+sepal_length = st.sidebar.slider("花萼长度 (cm)", min_value=0.0, max_value=10.0, value=5.0, step=0.1)
+# 使用滑动条接收花萼宽度，设置范围为 0.0 到 10.0，默认值为 5.0
+sepal_width = st.sidebar.slider("花萼宽度 (cm)", min_value=0.0, max_value=10.0, value=5.0, step=0.1)
+# 使用滑动条接收花瓣长度，设置范围为 0.0 到 10.0，默认值为 5.0
+petal_length = st.sidebar.slider("花瓣长度 (cm)", min_value=0.0, max_value=10.0, value=5.0, step=0.1)
+# 使用滑动条接收花瓣宽度，设置范围为 0.0 到 10.0，默认值为 5.0
+petal_width = st.sidebar.slider("花瓣宽度 (cm)", min_value=0.0, max_value=10.0, value=5.0, step=0.1)
 
 # 创建输入数据框，将输入的特征整理为 DataFrame 格式
 input_data = pd.DataFrame({
