@@ -1,42 +1,8 @@
-# import streamlit as st
-# import pandas as pd
-# import pickle
-# import xgboost as xgb
-# import os
-#
-# # 加载模型
-# # 获取当前文件的目录
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-# model_path = os.path.join(current_dir, 'xgboost_model.pkl')
-# with open(model_path, 'rb') as file:
-#     model = pickle.load(file)
-#
-# # Streamlit 应用界面
-# st.title("XGBoost 模型预测")
-#
-# # 输入特征
-# sepal_length = st.number_input("Sepal Length", min_value=0.0)
-# sepal_width = st.number_input("Sepal Width", min_value=0.0)
-# petal_length = st.number_input("Petal Length", min_value=0.0)
-# petal_width = st.number_input("Petal Width", min_value=0.0)
-#
-# # 创建输入数据框
-# input_data = pd.DataFrame({
-#     'sepal length (cm)': [sepal_length],
-#     'sepal width (cm)': [sepal_width],
-#     'petal length (cm)': [petal_length],
-#     'petal width (cm)': [petal_width]
-# })
-#
-# # 预测按钮
-# if st.button("预测"):
-#     prediction = model.predict(input_data)
-#     st.write(f"预测结果: {prediction[0]}")
-
 import streamlit as st  # 导入 Streamlit 库，用于创建 Web 应用
 import pandas as pd  # 导入 Pandas 库，用于数据处理
 import pickle  # 导入 pickle 库，用于加载已训练的模型
 import os  # 导入 os 库，用于处理文件路径
+import shap  # 导入 SHAP 库，用于解释模型
 
 # 加载模型
 # 获取当前文件的目录
@@ -49,6 +15,12 @@ with open(model_path, 'rb') as file:
 
 # 设置 Streamlit 应用的标题
 st.title("XGBoost 模型预测")
+
+# # 输入特征
+# sepal_length = st.number_input("Sepal Length", min_value=0.0)
+# sepal_width = st.number_input("Sepal Width", min_value=0.0)
+# petal_length = st.number_input("Petal Length", min_value=0.0)
+# petal_width = st.number_input("Petal Width", min_value=0.0)
 
 # 在侧边栏中输入特征
 st.sidebar.header("输入特征")  # 侧边栏的标题
@@ -78,8 +50,31 @@ input_data = pd.DataFrame({
     'petal width (cm)': [petal_width]
 })
 
+
 # 添加预测按钮，用户点击后进行模型预测
 if st.button("预测"):
     prediction = model.predict(input_data)  # 使用加载的模型进行预测
-    # 显示预测结果
     st.write(f"预测结果: {prediction[0]}")
+
+    # 计算 SHAP 值
+    explainer = shap.Explainer(model)  # 或者使用 shap.TreeExplainer(model) 来计算树模型的 SHAP 值
+    shap_values = explainer(input_data)
+
+    # 提取单个样本的 SHAP 值和期望值
+    sample_shap_values = shap_values[0]  # 提取第一个样本的 SHAP 值
+    expected_value = explainer.expected_value[0]  # 获取对应输出的期望值
+
+    # 创建 Explanation 对象
+    explanation = shap.Explanation(
+        values=sample_shap_values[:, 0],  # 选择特定输出的 SHAP 值
+        base_values=expected_value,
+        data=input_data.iloc[0].values
+    )
+
+    # 保存为 HTML 文件
+    shap.save_html("shap_force_plot.html", shap.plots.force(explanation, show=False))
+
+    # 在 Streamlit 中显示 HTML
+    st.subheader("模型预测的力图")
+    with open("shap_force_plot.html") as f:
+        st.components.v1.html(f.read(), height=600)
