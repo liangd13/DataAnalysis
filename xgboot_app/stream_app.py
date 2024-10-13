@@ -1,26 +1,67 @@
-import streamlit as st
-import pandas as pd
-import pickle
-import xgboost as xgb
-import os
+# import streamlit as st
+# import pandas as pd
+# import pickle
+# import xgboost as xgb
+# import os
+#
+# # 加载模型
+# # 获取当前文件的目录
+# current_dir = os.path.dirname(os.path.abspath(__file__))
+# model_path = os.path.join(current_dir, 'xgboost_model.pkl')
+# with open(model_path, 'rb') as file:
+#     model = pickle.load(file)
+#
+# # Streamlit 应用界面
+# st.title("XGBoost 模型预测")
+#
+# # 输入特征
+# sepal_length = st.number_input("Sepal Length", min_value=0.0)
+# sepal_width = st.number_input("Sepal Width", min_value=0.0)
+# petal_length = st.number_input("Petal Length", min_value=0.0)
+# petal_width = st.number_input("Petal Width", min_value=0.0)
+#
+# # 创建输入数据框
+# input_data = pd.DataFrame({
+#     'sepal length (cm)': [sepal_length],
+#     'sepal width (cm)': [sepal_width],
+#     'petal length (cm)': [petal_length],
+#     'petal width (cm)': [petal_width]
+# })
+#
+# # 预测按钮
+# if st.button("预测"):
+#     prediction = model.predict(input_data)
+#     st.write(f"预测结果: {prediction[0]}")
+
+import streamlit as st  # 导入 Streamlit 库，用于创建 Web 应用
+import pandas as pd  # 导入 Pandas 库，用于数据处理
+import pickle  # 导入 pickle 库，用于加载已训练的模型
+import os  # 导入 os 库，用于处理文件路径
 
 # 加载模型
 # 获取当前文件的目录
 current_dir = os.path.dirname(os.path.abspath(__file__))
+# 组合当前目录与模型文件名，生成模型的完整路径
 model_path = os.path.join(current_dir, 'xgboost_model.pkl')
+# 打开并加载模型
 with open(model_path, 'rb') as file:
-    model = pickle.load(file)
+    model = pickle.load(file)  # 使用 pickle 加载模型文件
 
-# Streamlit 应用界面
+# 设置 Streamlit 应用的标题
 st.title("XGBoost 模型预测")
 
-# 输入特征
-sepal_length = st.number_input("Sepal Length", min_value=0.0)
-sepal_width = st.number_input("Sepal Width", min_value=0.0)
-petal_length = st.number_input("Petal Length", min_value=0.0)
-petal_width = st.number_input("Petal Width", min_value=0.0)
+# 在侧边栏中输入特征
+st.sidebar.header("输入特征")  # 侧边栏的标题
+# 使用数字输入框接收花萼长度，设置最小值为 0.0
+sepal_length = st.sidebar.number_input("花萼长度 (cm)", min_value=0.0)
+# 使用数字输入框接收花萼宽度，设置最小值为 0.0
+sepal_width = st.sidebar.number_input("花萼宽度 (cm)", min_value=0.0)
+# 使用数字输入框接收花瓣长度，设置最小值为 0.0
+petal_length = st.sidebar.number_input("花瓣长度 (cm)", min_value=0.0)
+# 使用数字输入框接收花瓣宽度，设置最小值为 0.0
+petal_width = st.sidebar.number_input("花瓣宽度 (cm)", min_value=0.0)
 
-# 创建输入数据框
+# 创建输入数据框，将输入的特征整理为 DataFrame 格式
 input_data = pd.DataFrame({
     'sepal length (cm)': [sepal_length],
     'sepal width (cm)': [sepal_width],
@@ -28,7 +69,8 @@ input_data = pd.DataFrame({
     'petal width (cm)': [petal_width]
 })
 
-# 预测按钮
+# 添加预测按钮，用户点击后进行模型预测
 if st.button("预测"):
-    prediction = model.predict(input_data)
+    prediction = model.predict(input_data)  # 使用加载的模型进行预测
+    # 显示预测结果
     st.write(f"预测结果: {prediction[0]}")
