@@ -68,7 +68,8 @@ if st.button("预测"):
     explanation = shap.Explanation(
         values=sample_shap_values[:, 0],  # 选择特定输出的 SHAP 值
         base_values=expected_value,
-        data=input_data.iloc[0].values
+        data=input_data.iloc[0].values,
+        feature_names=input_data.columns.tolist()
     )
 
     # 保存为 HTML 文件
