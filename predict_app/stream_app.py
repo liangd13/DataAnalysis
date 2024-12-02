@@ -17,12 +17,12 @@ st.title("Comprehensive mortality prediction in older patients with coronary hea
 
 st.sidebar.header("Selection Panel")  # 侧边栏的标题
 st.sidebar.subheader("Picking up parameters")
-Age = st.sidebar.slider("Age", min_value=50, max_value=110, value=85, step=1)
-HR = st.sidebar.slider("HR", min_value=30, max_value=170, value=56, step=1)
-Hb = st.sidebar.slider("Hb", min_value=50, max_value=190, value=75, step=1)
-HDL = st.sidebar.slider("HDL", min_value=0.01, max_value=3.00, value=0.52, step=0.01)
-albumin = st.sidebar.slider("Albumin", min_value=20.0, max_value=60.0, value=25.0, step=0.1)
-fibrinogen = st.sidebar.slider("Fibrinogen", min_value=0.50, max_value=10.00, value=2.18, step=0.01)
+Age = st.sidebar.slider("Age (year)", min_value=59, max_value=104, value=85, step=1)
+HR = st.sidebar.slider("HR (bpm)", min_value=39, max_value=106, value=56, step=1)
+Hb = st.sidebar.slider("Hb (g/L)", min_value=57, max_value=185, value=75, step=1)
+HDL = st.sidebar.slider("HDL (mmol/L)", min_value=0.19, max_value=2.71, value=0.52, step=0.01)
+albumin = st.sidebar.slider("Albumin (g/L)", min_value=23.7, max_value=50.0, value=25.0, step=0.1)
+fibrinogen = st.sidebar.slider("Fibrinogen (g/L)", min_value=0.78, max_value=9.02, value=2.18, step=0.01)
 
 # 创建输入数据框，将输入的特征整理为 DataFrame 格式
 input_data = pd.DataFrame({
@@ -30,8 +30,8 @@ input_data = pd.DataFrame({
     'HR': [HR],
     'Hb': [Hb],
     'HDL': [HDL],
-    'Albumin': [albumin],
-    'Fibrinogen': [fibrinogen]
+    'albumin': [albumin],
+    'fibrinogen': [fibrinogen]
 })
 
 time_points = [365, 3*365, 5*365, 10*365]
