@@ -13,7 +13,7 @@ with open(model_path, 'rb') as file:
     model = pickle.load(file)  # 使用 pickle 加载模型文件
 
 # 设置 Streamlit 应用的标题
-st.title("Comprehensive mortality prediction in older patients with coronary heart disease through machine learning approaches integrating novel biomarkers: a prospective study with a 10-year follow-up")
+st.title("Comprehensive mortality prediction in older patients with coronary heart disease through advanced machine learning approaches: a prospective study with a 10-year follow-up")
 
 st.sidebar.header("Selection Panel")  # 侧边栏的标题
 st.sidebar.subheader("Picking up parameters")
