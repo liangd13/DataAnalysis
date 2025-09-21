@@ -26,40 +26,74 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def makeDirectory(dir_name):
-    print("尝试创建新目录：", dir_name)
+    logger.info(f"尝试创建新目录 {dir_name}")
     current_path = os.getcwd()
     output_dir = os.path.join(current_path, dir_name)
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
-        print(f"已在当前目录 {current_path} 下创建了目录 {dir_name}")
+        logger.info(f"已在当前目录 {current_path} 下创建了目录 {dir_name}")
     else:
-        print(f"目录 {dir_name} 已存在，无需创建。")
+        logger.info(f"目录 {dir_name} 已存在，无需创建。")
 
     return output_dir
 
 
+def loadProcessData(data_path, result_var_name, cat_var_num, output_dir):
+    logger.info("******** 数据集加载 *********")
+    data = pd.read_csv(data_path)
+    logger.info(f"数据集shape: {data.shape}")
+    logger.info(f"数据集类型:\n{data.dtypes}")
+
+    logger.info("******** 区分分类变量和连续变量 *********")
+    # 分类变量
+    catnames = [data.columns.to_list()[i] for i in range(1, cat_var_num)]
+    logger.info(f"分类变量:{catnames}")
+    # 连续变量
+    connames = [i for i in data.columns.to_list() if i not in catnames + [result_var_name]]
+    logger.info(f"连续变量:{connames}")
+    # 所有变量
+    allnames = catnames + connames
+    logger.info(f"所有变量:{allnames}")
+
+    # 分类变量转换为category
+    for i in catnames:
+        data[i] = data[i].astype("category")
+    # 设定因变量
+    data[result_var_name] = pd.Categorical(data[result_var_name])
+    data[result_var_name].cat.categories
+    # 数据列类型
+    logger.info(f"转换后数据类型:\n{data.dtypes}")
+
+    # 描述统计表
+    exportDataDescriptionTable(data, output_dir=output_dir)
+    # 数字变量相关系数热图
+    exportConVarHeatMap(data, connames=connames, output_dir=output_dir)
+
+    return data, catnames, connames
+
+
 def exportDataDescriptionTable(data, output_dir):
     # 描述统计表
-    print("\n******** Export 数据集描述统计表 *********")
+    logger.info("******** Export 数据集描述统计表 *********")
     table1 = TableOne(data, dip_test=True, normal_test=True, tukey_test=True)
     table1.to_csv(output_dir + "/table1.csv")
-    print("\n数据集统计表\n", table1)
-    print(">> 数据集描述统计表已保存在：", output_dir + "/table1.pdf")
+    logger.info(f"数据集统计表\n{table1}")
+    logger.info(f">> 数据集描述统计表已保存在：{output_dir}/table1.pdf")
 
 
 def exportConVarHeatMap(data, connames, output_dir):
-    print("\n******** Export 连续变量的相关系数热图 *********")
+    logger.info("******** Export 连续变量的相关系数热图 *********")
     sns.heatmap(data.loc[:, connames].corr(), vmin=-1, vmax=1, center=0,
                 linecolor="white",
                 linewidths=0.1,
                 cmap="RdBu_r")
     plt.savefig(output_dir + "/heatmap.pdf")
     plt.close()
-    print(">> 连续变量相关系数热图已保存在：", output_dir + "/heatmap.pdf")
+    logger.info(f">> 连续变量相关系数热图已保存在：{output_dir}/heatmap.pdf")
 
 
 def trainTestSplit(data, allnames, result_var_name, test_set_size, output_dir):
-    print("\n******** 划分训练集和测试集数据 *********")
+    logger.info("******** 划分训练集和测试集数据 *********")
     ## 自变量部分
     data_x = data.loc[:, allnames]
     ## 因变量部分
@@ -67,19 +101,19 @@ def trainTestSplit(data, allnames, result_var_name, test_set_size, output_dir):
 
     train_x, test_x, train_y, test_y = train_test_split(data_x, data_y, test_size=test_set_size,
                                                         random_state=432)
-    print("训练集自变量：", train_x.shape)
-    print("测试集自变量：", test_x.shape)
-    print("训练集因变量：", train_y.shape)
-    print("测试集因变量：", test_y.shape)
+    logger.info(f"训练集自变量：{train_x.shape}")
+    logger.info(f"测试集自变量：{test_x.shape}")
+    logger.info(f"训练集因变量：{train_y.shape}")
+    logger.info(f"测试集因变量：{test_y.shape}")
 
-    print("\n******** Export 训练集和测试集统计表 *********")
+    logger.info("******** Export 训练集和测试集统计表 *********")
     warnings.filterwarnings("ignore")
     data_tmp = data.copy()
     data_tmp["dataset"] = "test"
     data_tmp["dataset"].iloc[train_x.index] = "train"
     table2 = TableOne(data_tmp, groupby=result_var_name, pval=True, htest_name=True)
     table2.to_csv(output_dir + "/table_train_test.csv")
-    print(">> 训练集和测试集统计表已保存在：", output_dir + "/table_train_test.csv")
+    logger.info(f">> 训练集和测试集统计表已保存在：{output_dir}/table_train_test.csv")
 
     return train_x, test_x, train_y, test_y
 

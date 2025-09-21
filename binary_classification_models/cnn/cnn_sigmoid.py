@@ -29,45 +29,14 @@ new_directory_name = "result"
 output_dir = util.makeDirectory(new_directory_name)
 
 # 1. 数据加载
-print("\n******** 数据集加载 *********")
-data = pd.read_csv(data_path)
-print("数据集shape:", data.shape)
-print(data.head())
-print("数据集类型:\n", data.dtypes)
-
-print("\n******** 区分分类变量和连续变量 *********")
-## 分类变量
-catnames = [data.columns.to_list()[i] for i in range(1, cat_var_num)]
-print("分类变量:", catnames)
-## 连续变量
-connames = [i for i in data.columns.to_list() if i not in catnames + [result_var_name]]
-print("连续变量:", connames)
-## 所有变量
+data, catnames, connames = util.loadProcessData(data_path, result_var_name, cat_var_num, output_dir)
 allnames = catnames + connames
-print("所有变量:", allnames)
-
-# 分类变量转换为category
-for i in catnames:
-    data[i] = data[i].astype("category")
-## 设定因变量
-data[result_var_name] = pd.Categorical(data[result_var_name])
-data[result_var_name].cat.categories
-## 数据列类型
-print("转换后数据类型:\n", data.dtypes)
-
-# 描述统计表
-util.exportDataDescriptionTable(data, output_dir=output_dir)
-
-# 数字变量相关系数热图
-util.exportConVarHeatMap(data, connames=connames, output_dir=output_dir)
-
 
 # 2. 拆分数据集（训练集和测试集）
 train_x, test_x, train_y, test_y = util.trainTestSplit(data, allnames=allnames,
                                                        result_var_name=result_var_name,
                                                        test_set_size=test_set_size,
                                                        output_dir=output_dir)
-
 
 # 3. 数据的预处理
 prep_mlp = util.dataPreprocessing(catnames, connames)
@@ -109,11 +78,11 @@ util.evalfunc(model=mlp,
 util.plotFeatureImportance(mlp, train_x,  modelname="mlp", output_dir=output_dir)
 
 # Partial dependence display
-# util.plotSinglePartialDependence(mlp, train_x, connames=connames, output_dir=output_dir)
-#
-# util.plotTwoPartialDependence(mlp, train_x, "Latency", "NSE", output_dir)
-# util.plotTwoPartialDependence(mlp, train_x, "Latency", "IL-8", output_dir)
-# util.plotTwoPartialDependence(mlp, train_x, "NSE", "IL-8", output_dir)
+util.plotSinglePartialDependence(mlp, train_x, connames=connames, output_dir=output_dir)
+
+util.plotTwoPartialDependence(mlp, train_x, "Latency", "NSE", output_dir)
+util.plotTwoPartialDependence(mlp, train_x, "Latency", "IL-8", output_dir)
+util.plotTwoPartialDependence(mlp, train_x, "NSE", "IL-8", output_dir)
 
 # shap
 shapvalues_mlp, final_train_x = util.getModelShapeValues(mlp, "mlp", train_x)
@@ -121,7 +90,6 @@ shapvalues_mlp, final_train_x = util.getModelShapeValues(mlp, "mlp", train_x)
 util.plotShapBeeswarmViolinBar(shapvalues_mlp, final_train_x, output_dir)
 var_names = {"Latency", "IL-8", "MVG_Grading_1", "NSE", "Albumin", "TP"}
 util.plotShapSingleVar(shapvalues_mlp, var_names, output_dir)
-
 util.plotShapWaterForceDesicion(shapvalues_mlp, final_train_x, output_dir)
 
 
